@@ -3,7 +3,7 @@
 ## commit message template の登録
 
 ```bash
-ln -sf ~/Desktop/work/repositories/dotfiles/.gitmessage ~/.gitmessage
+ln -sf ~/<this repository path>/dotfiles/.gitmessage ~/.gitmessage
 git config --global commit.template ~/.gitmessage
 ```
 
