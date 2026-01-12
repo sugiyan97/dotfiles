@@ -1,0 +1,9 @@
+# Nix
+result
+result-*
+.direnv
+*.drv
+*.check
+
+# Home Manager
+.home-manager-*
