@@ -1,9 +1,22 @@
 { config, pkgs, ... }:
 
-{
+let
+  # Try to get username from USER environment variable first, then from HOME
+  userEnv = builtins.getEnv "USER";
+  homeEnv = builtins.getEnv "HOME";
+  # Extract username from HOME path using regex (e.g., /Users/username -> username)
+  homeMatch = if homeEnv != "" then builtins.match "/Users/(.+)" homeEnv else null;
+  homeUsername = if homeMatch != null && homeMatch != [] then builtins.head homeMatch else null;
+  username = if userEnv != "" then
+    userEnv
+  else if homeUsername != null then
+    homeUsername
+  else
+    (builtins.abort "ERROR: Neither USER nor HOME environment variable is set. Please ensure at least one is set in your environment.");
+in {
   # Home Manager needs to know the username
-  home.username = "yoshiyukisugiyama3";
-  home.homeDirectory = "/Users/yoshiyukisugiyama3";
+  home.username = username;
+  home.homeDirectory = "/Users/${username}";
 
   # This value should be the same as the one in flake.nix
   home.stateVersion = "24.05";

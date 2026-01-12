@@ -49,11 +49,16 @@ DOTFILES_DIR="$HOME/Desktop/work/repositories/dotfiles"
 # （上記の「Nix のインストールと設定」セクションを参照）
 
 # FlakeモードでHome Managerの設定を適用
+# --impure フラグが必要です（環境変数にアクセスするため）
 cd "$DOTFILES_DIR"
-nix run home-manager/master -- switch --flake .#default
+nix run home-manager/master -- --impure switch --flake .#default
 ```
 
 **注意**: Flakeモードでは`home-manager`コマンドを直接インストールする必要はありません。`nix run`コマンドで直接実行します。
+
+**動的な設定**: `home.nix` は環境変数 `USER` または `HOME` からユーザー名を動的に取得します。これにより、異なるユーザーや環境でも同じ設定ファイルを使用できます。ホームディレクトリは `/Users/${username}` として自動的に構築されます。
+
+**重要**: `nix run` コマンドには `--impure` フラグが必要です。これは環境変数にアクセスするために必要です。
 
 **初回実行時**: 初回実行時は、Flakeの依存関係をダウンロードするため時間がかかります。
 
@@ -109,14 +114,14 @@ nix run home-manager/master -- switch --flake .#default
 
 ```bash
 cd "$DOTFILES_DIR"
-nix run home-manager/master -- switch --flake .#default
+nix run home-manager/master -- --impure switch --flake .#default
 ```
 
 **便利なエイリアス**: よく使う場合は、エイリアスを設定すると便利です：
 
 ```bash
 # .zshrc に追加
-alias hm-switch='cd ~/Desktop/work/repositories/dotfiles && nix run home-manager/master -- switch --flake .#default'
+alias hm-switch='cd ~/Desktop/work/repositories/dotfiles && nix run home-manager/master -- --impure switch --flake .#default'
 ```
 
 #### Homebrew パッケージの削除
