@@ -55,7 +55,22 @@ in {
       # Custom zshrc content
       initContent = ''
         zstyle ":completion:*:commands" rehash 1
-        typeset -U path PATH
+
+        # Save existing PATH before typeset -U (which may reset it)
+        # Only set typeset -U if path array is not already set
+        if [[ ${#path[@]} -eq 0 ]]; then
+          # Save PATH before typeset -U resets it using eval to avoid Nix parsing issues
+          eval "SAVEDPATH=\"''$PATH\""
+          typeset -U path PATH
+          # Restore PATH from saved value using eval
+          eval "PATH=\$SAVEDPATH"
+          # Rebuild path array from PATH using eval to avoid Nix parsing issues
+          eval "path=(\${(s/:/)PATH})"
+        else
+          typeset -U path PATH
+        fi
+
+        # Set up base PATH
         path=(
           /opt/homebrew/bin(N-/)
           /opt/homebrew/sbin(N-/)
@@ -68,26 +83,58 @@ in {
           /Library/Apple/usr/bin
         )
 
+        # Nix - Initialize if not already done in .zprofile
+        # Note: .zprofile is loaded before .zshrc, so Nix may already be initialized.
+        # This is a fallback initialization in case .zprofile wasn't loaded or Nix wasn't initialized there.
+        if [ -z "''$NIX_PATH" ] && [ -e "''$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+          . "''$HOME/.nix-profile/etc/profile.d/nix.sh"
+        elif [ -z "''$NIX_PATH" ] && [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix.sh' ]; then
+          . '/nix/var/nix/profiles/default/etc/profile.d/nix.sh'
+        fi
+
+        # Nix SSL Certificate Configuration
+        # Set SSL certificate path for Git and other tools using Nix-managed certificates
+        if command -v nix-build >/dev/null 2>&1; then
+          # Try to get the certificate path from nixpkgs
+          NIX_CERT_PATH=$(nix-build '<nixpkgs>' -A cacert --no-out-link 2>/dev/null)
+          if [ -n "''$NIX_CERT_PATH" ] && [ -f "''$NIX_CERT_PATH/etc/ssl/certs/ca-bundle.crt" ]; then
+            export SSL_CERT_FILE="''$NIX_CERT_PATH/etc/ssl/certs/ca-bundle.crt"
+            export NIX_SSL_CERT_FILE="''${SSL_CERT_FILE}"
+          elif [ -f "/nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt" ]; then
+            export SSL_CERT_FILE="/nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt"
+            export NIX_SSL_CERT_FILE="''${SSL_CERT_FILE}"
+          fi
+        fi
+
+        # Add /nix/var/nix/profiles/default/bin to PATH (where nix command actually exists)
+        # This must be done after Nix initialization to ensure it's in PATH
+        if [[ ":''$PATH:" != *":/nix/var/nix/profiles/default/bin:"* ]]; then
+          PATH="/nix/var/nix/profiles/default/bin:''$PATH"
+        fi
+
+        # Initialize completion (Home Manager enables completion, but compinit may still be needed)
+        autoload -Uz compinit && compinit
+
         alias python="python3"
         autoload -Uz colors && colors
 
-        PROMPT="%n ($(arch)):%~"$'\n'"%# "
+        PROMPT="%n (''$(arch)):%~"''$'\n'"%# "
         git_prompt() {
-          if [ "$(git rev-parse --is-inside-work-tree 2> /dev/null)" = true ]; then
+          if [ "''$(git rev-parse --is-inside-work-tree 2> /dev/null)" = true ]; then
             local branch=$(git branch --show-current 2>/dev/null)
             local git_status=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
-            if [ "$git_status" -gt 0 ]; then
-              PROMPT="%F{green}%n%f %F{cyan}($(arch))%f %F{034}%h%f:%F{020}%~%f (%F{yellow}''${branch}%f|✚''${git_status}) "$'\n'"%# "
+            if [ "''$git_status" -gt 0 ]; then
+              PROMPT="%F{green}%n%f %F{cyan}(''$(arch))%f %F{034}%h%f:%F{020}%~%f (%F{yellow}''${branch}%f|✚''${git_status}) "''$'\n'"%# "
             else
-              PROMPT="%F{green}%n%f %F{cyan}($(arch))%f %F{034}%h%f:%F{020}%~%f (%F{yellow}''${branch}%f) "$'\n'"%# "
+              PROMPT="%F{green}%n%f %F{cyan}(''$(arch))%f %F{034}%h%f:%F{020}%~%f (%F{yellow}''${branch}%f) "''$'\n'"%# "
             fi
           else
-            PROMPT="%F{green}%n%f %F{cyan}($(arch))%f %F{034}%h%f:%F{020}%~%f "$'\n'"%# "
+            PROMPT="%F{green}%n%f %F{cyan}(''$(arch))%f %F{034}%h%f:%F{020}%~%f "''$'\n'"%# "
           fi
         }
 
         add_newline() {
-          if [[ -z $PS1_NEWLINE_LOGIN ]]; then
+          if [[ -z ''${PS1_NEWLINE_LOGIN} ]]; then
             PS1_NEWLINE_LOGIN=true
           else
             printf '\n'
@@ -99,8 +146,19 @@ in {
           add_newline
         }
 
-        export PATH="$HOME/.cargo/bin:$PATH"
-        export PATH="$HOME/.local/bin:$PATH"
+        # Add user-specific paths to PATH if not already present
+        if [[ ":''$PATH:" != *":''$HOME/.cargo/bin:"* ]]; then
+          PATH="''$HOME/.cargo/bin:''$PATH"
+        fi
+        if [[ ":''$PATH:" != *":''$HOME/.local/bin:"* ]]; then
+          PATH="''$HOME/.local/bin:''$PATH"
+        fi
+
+        # Ensure /nix/var/nix/profiles/default/bin is in PATH (final check)
+        # This is where the nix command actually exists
+        if [[ ":''$PATH:" != *":/nix/var/nix/profiles/default/bin:"* ]]; then
+          PATH="/nix/var/nix/profiles/default/bin:''$PATH"
+        fi
       '';
 
       # Shell aliases
