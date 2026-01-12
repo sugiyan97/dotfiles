@@ -56,19 +56,9 @@ in {
       initContent = ''
         zstyle ":completion:*:commands" rehash 1
 
-        # Save existing PATH before typeset -U (which may reset it)
-        # Only set typeset -U if path array is not already set
-        if [[ ${#path[@]} -eq 0 ]]; then
-          # Save PATH before typeset -U resets it using eval to avoid Nix parsing issues
-          eval "SAVEDPATH=\"''$PATH\""
-          typeset -U path PATH
-          # Restore PATH from saved value using eval
-          eval "PATH=\$SAVEDPATH"
-          # Rebuild path array from PATH using eval to avoid Nix parsing issues
-          eval "path=(\${(s/:/)PATH})"
-        else
-          typeset -U path PATH
-        fi
+        # Set typeset -U to make path array unique
+        # typeset -U will convert existing PATH to path array without resetting it
+        typeset -U path PATH
 
         # Set up base PATH
         path=(
