@@ -15,6 +15,8 @@ export NVM_DIR="$HOME/.nvm"
 source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 
 # Nix
-if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix.sh' ]; then
+if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+  . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+elif [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix.sh' ]; then
   . '/nix/var/nix/profiles/default/etc/profile.d/nix.sh'
 fi
