@@ -21,6 +21,20 @@ elif [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix.sh' ]; then
   . '/nix/var/nix/profiles/default/etc/profile.d/nix.sh'
 fi
 
+# Nix SSL Certificate Configuration
+# Set SSL certificate path for Git and other tools using Nix-managed certificates
+if command -v nix-build >/dev/null 2>&1; then
+  # Try to get the certificate path from nixpkgs
+  NIX_CERT_PATH=$(nix-build '<nixpkgs>' -A cacert --no-out-link 2>/dev/null)
+  if [ -n "$NIX_CERT_PATH" ] && [ -f "$NIX_CERT_PATH/etc/ssl/certs/ca-bundle.crt" ]; then
+    export SSL_CERT_FILE="$NIX_CERT_PATH/etc/ssl/certs/ca-bundle.crt"
+    export NIX_SSL_CERT_FILE="$SSL_CERT_FILE"
+  elif [ -f "/nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt" ]; then
+    export SSL_CERT_FILE="/nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt"
+    export NIX_SSL_CERT_FILE="$SSL_CERT_FILE"
+  fi
+fi
+
 # Add /nix/var/nix/profiles/default/bin to PATH (where nix command actually exists)
 # This must be done after Nix initialization to ensure it's in PATH
 if [[ ":$PATH:" != *":/nix/var/nix/profiles/default/bin:"* ]]; then
