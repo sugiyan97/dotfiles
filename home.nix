@@ -16,16 +16,6 @@
     yarn
     awscli2
     python313
-
-    # Go tools
-    delve
-    golangci-lint
-    gomodifytags
-    goplay
-    gopls
-    gotests
-    impl
-    staticcheck
   ];
 
   # Programs configuration
@@ -34,8 +24,14 @@
     zsh = {
       enable = true;
       enableCompletion = true;
-      enableAutosuggestions = true;
+      autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
+      dotDir = "${config.xdg.configHome}/zsh";
+      
+      # Environment variables (equivalent to .zshenv)
+      envExtra = ''
+        . "$HOME/.cargo/env"
+      '';
 
       # History configuration
       history = {
@@ -44,7 +40,7 @@
       };
 
       # Custom zshrc content
-      initExtra = ''
+      initContent = ''
         zstyle ":completion:*:commands" rehash 1
         typeset -U path PATH
         path=(
@@ -103,8 +99,10 @@
     # Git configuration
     git = {
       enable = true;
-      userName = "yoshiyukisugiyama3";
-      # email is not set here - configure separately if needed
+      settings = {
+        user.name = "yoshiyukisugiyama3";
+        # email is not set here - configure separately if needed
+      };
     };
   };
 

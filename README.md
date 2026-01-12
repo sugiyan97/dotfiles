@@ -50,7 +50,7 @@ DOTFILES_DIR="$HOME/Desktop/work/repositories/dotfiles"
 
 # FlakeモードでHome Managerの設定を適用
 cd "$DOTFILES_DIR"
-nix run home-manager/master -- switch --flake .
+nix run home-manager/master -- switch --flake .#default
 ```
 
 **注意**: Flakeモードでは`home-manager`コマンドを直接インストールする必要はありません。`nix run`コマンドで直接実行します。
@@ -72,7 +72,16 @@ nix run home-manager/master -- switch --flake .
    ln -sfn /nix/var/nix/profiles/per-user/$(whoami)/profile ~/.nix-profile
    ```
 
-3. `nix-env`でインストールしたパッケージが競合している場合：
+3. プロファイルディレクトリの権限エラーが発生する場合：
+   ```bash
+   # ディレクトリの所有権を確認
+   ls -la /nix/var/nix/profiles/per-user/$(whoami)
+   
+   # root所有の場合は、所有権を変更（sudoが必要）
+   sudo chown -R $(whoami) /nix/var/nix/profiles/per-user/$(whoami)
+   ```
+
+4. `nix-env`でインストールしたパッケージが競合している場合：
    ```bash
    nix-env -q  # インストール済みパッケージを確認
    # 必要に応じて削除（ただし、Nix自体は削除しないでください）
@@ -94,30 +103,20 @@ nix run home-manager/master -- switch --flake .
 - `zsh-completions`
 - `syntax-highlighting`
 
-**Goツール:**
-- `delve`
-- `golangci-lint`
-- `gomodifytags`
-- `goplay`
-- `gopls`
-- `gotests`
-- `impl`
-- `staticcheck`
-
 #### Home Manager の設定更新
 
 設定を変更した後は、以下のコマンドで適用します：
 
 ```bash
 cd "$DOTFILES_DIR"
-nix run home-manager/master -- switch --flake .
+nix run home-manager/master -- switch --flake .#default
 ```
 
 **便利なエイリアス**: よく使う場合は、エイリアスを設定すると便利です：
 
 ```bash
 # .zshrc に追加
-alias hm-switch='cd ~/Desktop/work/repositories/dotfiles && nix run home-manager/master -- switch --flake .'
+alias hm-switch='cd ~/Desktop/work/repositories/dotfiles && nix run home-manager/master -- switch --flake .#default'
 ```
 
 #### Homebrew パッケージの削除
