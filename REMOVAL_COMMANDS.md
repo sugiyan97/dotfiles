@@ -8,7 +8,8 @@
 
 1. Home Managerの設定が正しく適用されているか確認
    ```bash
-   home-manager switch
+   cd ~/Desktop/work/repositories/dotfiles
+   nix run home-manager/master -- --impure switch --flake .#default
    ```
 
 2. 各ツールがNixで管理されていることを確認
@@ -98,7 +99,8 @@ python3 --version
 
 1. Home Managerの設定を再適用
    ```bash
-   home-manager switch
+   cd ~/Desktop/work/repositories/dotfiles
+   nix run home-manager/master -- --impure switch --flake .#default
    ```
 
 2. シェルを再起動
