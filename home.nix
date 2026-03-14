@@ -56,6 +56,9 @@ in {
 
       # Custom zshrc content
       initContent = ''
+        # Disable flow control (Ctrl+S/Ctrl+Q) so Ctrl+Q can be used as WezTerm leader key
+        stty -ixon 2>/dev/null || true
+
         zstyle ":completion:*:commands" rehash 1
 
         # Set typeset -U to make path array unique
