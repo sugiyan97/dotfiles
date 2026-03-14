@@ -12,8 +12,24 @@ end)
 
 return {
   keys = {
+    -- ワークスペース一覧（Cmd+Option+W。Cmd+Shift+W は macOS の「ウィンドウを閉じる」で奪われるため）
     {
-      -- workspaceの切り替え
+      key = "w",
+      mods = "SUPER|ALT",
+      action = act.ShowLauncherArgs({ flags = "WORKSPACES", title = "Select workspace" }),
+    },
+    {
+      key = "w",
+      mods = "SUPER|SHIFT",
+      action = act.ShowLauncherArgs({ flags = "WORKSPACES", title = "Select workspace" }),
+    },
+    {
+      key = "w",
+      mods = "CTRL|SHIFT",
+      action = act.ShowLauncherArgs({ flags = "WORKSPACES", title = "Select workspace" }),
+    },
+    {
+      -- workspaceの切り替え（Leader + w）
       key = "w",
       mods = "LEADER",
       action = act.ShowLauncherArgs({ flags = "WORKSPACES", title = "Select workspace" }),

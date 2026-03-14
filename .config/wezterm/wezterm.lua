@@ -78,6 +78,12 @@ end)
 config.disable_default_key_bindings = true
 config.keys = require("keybinds").keys
 config.key_tables = require("keybinds").key_tables
-config.leader = { key = "q", mods = "CTRL", timeout_milliseconds = 2000 }
+
+-- Leader = Ctrl+b（動作確認用。効かない場合はターミナルで wezterm を起動して debug_key_events のログを確認）
+config.leader = { key = "b", mods = "CTRL", timeout_milliseconds = 2000 }
+
+-- デバッグ: キーが WezTerm に届いているか確認するときは true にする。
+-- ターミナルで wezterm を実行すると stderr にキーイベントが出力される。
+config.debug_key_events = false
 
 return config
