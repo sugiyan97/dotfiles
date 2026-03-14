@@ -79,8 +79,8 @@ config.disable_default_key_bindings = true
 config.keys = require("keybinds").keys
 config.key_tables = require("keybinds").key_tables
 
--- Leader = Ctrl+b（動作確認用。効かない場合はターミナルで wezterm を起動して debug_key_events のログを確認）
-config.leader = { key = "b", mods = "CTRL", timeout_milliseconds = 2000 }
+-- Leader = Ctrl+q（押したあといったん離してから 2 秒以内に次のキー。home.nix で flow control 無効化済み）
+config.leader = { key = "q", mods = "CTRL", timeout_milliseconds = 2000 }
 
 -- デバッグ: キーが WezTerm に届いているか確認するときは true にする。
 -- ターミナルで wezterm を実行すると stderr にキーイベントが出力される。
