@@ -29,6 +29,8 @@ in {
     yarn
     awscli2
     python313
+    # Terminal
+    wezterm
   ];
 
   # Programs configuration
@@ -172,5 +174,8 @@ in {
     enable = true;
     configHome = "${config.home.homeDirectory}/.config";
     dataHome = "${config.home.homeDirectory}/.local/share";
+
+    # WezTerm config (dotfiles)
+    configFile."wezterm/wezterm.lua".source = ./.config/wezterm/wezterm.lua;
   };
 }
