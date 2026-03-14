@@ -175,7 +175,10 @@ in {
     configHome = "${config.home.homeDirectory}/.config";
     dataHome = "${config.home.homeDirectory}/.local/share";
 
-    # WezTerm config (dotfiles)
-    configFile."wezterm/wezterm.lua".source = ./.config/wezterm/wezterm.lua;
+    # WezTerm config (dotfiles) — ディレクトリごとデプロイ（wezterm.lua + keybinds.lua 等）
+    configFile."wezterm" = {
+      source = ./.config/wezterm;
+      recursive = true;
+    };
   };
 }
